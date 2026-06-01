@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"os"
 
-	config "github.com/Yah-oo5726/blog-aggregator/internal/config"
+	"github.com/Yah-oo5726/blog-aggregator/internal/config"
+	"github.com/Yah-oo5726/blog-aggregator/internal/database"
 )
 
 type state struct {
-	configPtr *config.Config
+	db  *database.Queries
+	cfg *config.Config
 }
 
 type command struct {
@@ -25,7 +27,7 @@ func handlerLogin(s *state, cmd command) error {
 	if len(cmd.arguments) == 0 {
 		return errors.New("username is required")
 	}
-	s.configPtr.SetUser(cmd.arguments[0])
+	s.cfg.SetUser(cmd.arguments[0])
 	fmt.Println("user has been set.")
 	return nil
 }
