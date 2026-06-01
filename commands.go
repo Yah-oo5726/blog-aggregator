@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/Yah-oo5726/blog-aggregator/internal/config"
 	"github.com/Yah-oo5726/blog-aggregator/internal/database"
+	"github.com/google/uuid"
 )
 
 type state struct {
@@ -27,8 +30,28 @@ func handlerLogin(s *state, cmd command) error {
 	if len(cmd.arguments) == 0 {
 		return errors.New("username is required")
 	}
+	if _, err := s.db.GetUser(context.Background(), cmd.arguments[0]); err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
 	s.cfg.SetUser(cmd.arguments[0])
 	fmt.Println("user has been set.")
+	return nil
+}
+
+func handlerRegister(s *state, cmd command) error {
+	if len(cmd.arguments) == 0 {
+		return errors.New("username is required")
+	}
+	time := time.Now()
+	user, err := s.db.CreateUser(context.Background(), database.CreateUserParams{ID: uuid.New(), CreatedAt: time, UpdatedAt: time, Name: cmd.arguments[0]})
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+	s.cfg.SetUser(cmd.arguments[0])
+	fmt.Println("user was created and logged into")
+	fmt.Printf("uuid %v created at %v updated at %v name %v\n", user.ID, user.CreatedAt, user.UpdatedAt, user.Name)
 	return nil
 }
 
