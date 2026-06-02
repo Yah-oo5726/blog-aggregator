@@ -55,6 +55,16 @@ func handlerRegister(s *state, cmd command) error {
 	return nil
 }
 
+func handlerReset(s *state, cmd command) error {
+	err := s.db.DeleteUsers(context.Background())
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+	fmt.Println("successful reset")
+	return nil
+}
+
 func (c *commands) run(s *state, cmd command) error {
 	function, exists := c.functions[cmd.name]
 	if !exists {

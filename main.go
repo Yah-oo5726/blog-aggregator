@@ -27,6 +27,7 @@ func main() {
 	program_commands := commands{functions: make(map[string]func(*state, command) error)}
 	program_commands.register("login", handlerLogin)
 	program_commands.register("register", handlerRegister)
+	program_commands.register("reset", handlerReset)
 	err = program_commands.run(&program_state, command{name: arguments[0], arguments: arguments[1:]})
 	if err != nil {
 		fmt.Println(err.Error())
