@@ -81,6 +81,12 @@ func handlerGetUsers(s *state, cmd command) error {
 	return nil
 }
 
+func handlerAgg(s *state, cmd command) error {
+	output, _ := fetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	fmt.Println(output)
+	return nil
+}
+
 func (c *commands) run(s *state, cmd command) error {
 	function, exists := c.functions[cmd.name]
 	if !exists {
