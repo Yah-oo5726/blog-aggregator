@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/Yah-oo5726/blog-aggregator/internal/config"
@@ -31,8 +30,7 @@ func handlerLogin(s *state, cmd command) error {
 		return errors.New("username is required")
 	}
 	if _, err := s.db.GetUser(context.Background(), cmd.arguments[0]); err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		return err
 	}
 	s.cfg.SetUser(cmd.arguments[0])
 	fmt.Println("user has been set.")
@@ -46,8 +44,7 @@ func handlerRegister(s *state, cmd command) error {
 	time := time.Now()
 	user, err := s.db.CreateUser(context.Background(), database.CreateUserParams{ID: uuid.New(), CreatedAt: time, UpdatedAt: time, Name: cmd.arguments[0]})
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		return err
 	}
 	s.cfg.SetUser(cmd.arguments[0])
 	fmt.Println("user was created and logged into")
@@ -58,8 +55,7 @@ func handlerRegister(s *state, cmd command) error {
 func handlerReset(s *state, cmd command) error {
 	err := s.db.DeleteUsers(context.Background())
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		return err
 	}
 	fmt.Println("successful reset")
 	return nil
@@ -68,8 +64,7 @@ func handlerReset(s *state, cmd command) error {
 func handlerGetUsers(s *state, cmd command) error {
 	users, err := s.db.GetUsers(context.Background())
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		return err
 	}
 	for _, user := range users {
 		fmt.Printf("* %s", user.Name)
@@ -82,8 +77,27 @@ func handlerGetUsers(s *state, cmd command) error {
 }
 
 func handlerAgg(s *state, cmd command) error {
-	output, _ := fetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	output, err := fetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	if err != nil {
+		return err
+	}
 	fmt.Println(output)
+	return nil
+}
+
+func handlerAddFeed(s *state, cmd command) error {
+	if len(cmd.arguments) < 2 {
+		return fmt.Errorf("Not enough arguments")
+	}
+	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
+	if err != nil {
+		return err
+	}
+	feed, err := s.db.AddFeed(context.Background(), database.AddFeedParams{ID: uuid.New(), CreatedAt: time.Now(), UpdatedAt: time.Now(), Name: cmd.arguments[0], Url: cmd.arguments[1], UserID: user.ID})
+	if err != nil {
+		return err
+	}
+	fmt.Println(feed)
 	return nil
 }
 
@@ -94,8 +108,7 @@ func (c *commands) run(s *state, cmd command) error {
 	}
 	err := function(s, command{name: cmd.name, arguments: cmd.arguments})
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		return err
 	}
 	return nil
 }

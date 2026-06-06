@@ -3,11 +3,9 @@ package main
 import (
 	"context"
 	"encoding/xml"
-	"fmt"
 	"html"
 	"io"
 	"net/http"
-	"os"
 )
 
 type RSSFeed struct {
@@ -42,28 +40,24 @@ func (feed *RSSFeed) unescapeText() {
 func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	request, err := http.NewRequestWithContext(ctx, "GET", feedURL, nil)
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		return nil, err
 	}
 	request.Header.Set("User-Agent", "gator")
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		return nil, err
 	}
 	defer response.Body.Close()
 	data, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		return nil, err
 	}
 	feed := RSSFeed{}
 	feedPtr := &feed
 	err = xml.Unmarshal(data, feedPtr)
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		return nil, err
 	}
 	feedPtr.unescapeText()
 	return feedPtr, nil

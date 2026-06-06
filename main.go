@@ -30,6 +30,7 @@ func main() {
 	program_commands.register("reset", handlerReset)
 	program_commands.register("users", handlerGetUsers)
 	program_commands.register("agg", handlerAgg)
+	program_commands.register("addfeed", handlerAddFeed)
 	err = program_commands.run(&program_state, command{name: arguments[0], arguments: arguments[1:]})
 	if err != nil {
 		fmt.Println(err.Error())
