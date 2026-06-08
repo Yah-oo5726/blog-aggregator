@@ -31,6 +31,7 @@ func main() {
 	program_commands.register("users", handlerGetUsers)
 	program_commands.register("agg", handlerAgg)
 	program_commands.register("addfeed", handlerAddFeed)
+	program_commands.register("feeds", handlerFeeds)
 	err = program_commands.run(&program_state, command{name: arguments[0], arguments: arguments[1:]})
 	if err != nil {
 		fmt.Println(err.Error())

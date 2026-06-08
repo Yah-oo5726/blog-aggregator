@@ -101,6 +101,24 @@ func handlerAddFeed(s *state, cmd command) error {
 	return nil
 }
 
+func handlerFeeds(s *state, cmd command) error {
+	feeds, err := s.db.GetFeeds(context.Background())
+	if err != nil {
+		return err
+	}
+	for _, feed := range feeds {
+		info, err := s.db.GetFeedInfo(context.Background(), feed.ID)
+		if err != nil {
+			return err
+		}
+		_, err = fmt.Printf("* %v\n  - %v\n  - %v\n", info.Name, info.Url, info.Name_2)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (c *commands) run(s *state, cmd command) error {
 	function, exists := c.functions[cmd.name]
 	if !exists {
