@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -98,6 +99,7 @@ func handlerAddFeed(s *state, cmd command) error {
 		return err
 	}
 	fmt.Println(feed)
+	err = handlerFollow(s, command{name: "follow", arguments: cmd.arguments[1:]})
 	return nil
 }
 
@@ -116,6 +118,26 @@ func handlerFeeds(s *state, cmd command) error {
 			return err
 		}
 	}
+	return nil
+}
+
+func handlerFollow(s *state, cmd command) error {
+	if len(cmd.arguments) == 0 {
+		return errors.New("url is required")
+	}
+	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
+	if err != nil {
+		return err
+	}
+	feed, err := s.db.GetByUrl(context.Background(), cmd.arguments[0])
+	if err != nil {
+		return err
+	}
+	_, err = s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{ID: uuid.New(), CreatedAt: sql.NullTime{Time: time.Now(), Valid: true}, UpdatedAt: sql.NullTime{Time: time.Now(), Valid: true}, UserID: user.ID, FeedID: feed.ID})
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s followed %s\n", user.Name, feed.Name)
 	return nil
 }
 
