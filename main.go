@@ -33,6 +33,7 @@ func main() {
 	program_commands.register("addfeed", handlerAddFeed)
 	program_commands.register("feeds", handlerFeeds)
 	program_commands.register("follow", handlerFollow)
+	program_commands.register("following", handlerFollowing)
 	err = program_commands.run(&program_state, command{name: arguments[0], arguments: arguments[1:]})
 	if err != nil {
 		fmt.Println(err.Error())
