@@ -30,10 +30,10 @@ func main() {
 	program_commands.register("reset", handlerReset)
 	program_commands.register("users", handlerGetUsers)
 	program_commands.register("agg", handlerAgg)
-	program_commands.register("addfeed", handlerAddFeed)
+	program_commands.register("addfeed", middlewareLoggedIn(handlerAddFeed))
 	program_commands.register("feeds", handlerFeeds)
-	program_commands.register("follow", handlerFollow)
-	program_commands.register("following", handlerFollowing)
+	program_commands.register("follow", middlewareLoggedIn(handlerFollow))
+	program_commands.register("following", middlewareLoggedIn(handlerFollowing))
 	err = program_commands.run(&program_state, command{name: arguments[0], arguments: arguments[1:]})
 	if err != nil {
 		fmt.Println(err.Error())
