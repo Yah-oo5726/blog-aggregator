@@ -34,6 +34,7 @@ func main() {
 	program_commands.register("feeds", handlerFeeds)
 	program_commands.register("follow", middlewareLoggedIn(handlerFollow))
 	program_commands.register("following", middlewareLoggedIn(handlerFollowing))
+	program_commands.register("unfollow", middlewareLoggedIn(handlerUnfollow))
 	err = program_commands.run(&program_state, command{name: arguments[0], arguments: arguments[1:]})
 	if err != nil {
 		fmt.Println(err.Error())

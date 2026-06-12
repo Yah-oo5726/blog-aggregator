@@ -159,6 +159,21 @@ func handlerFollowing(s *state, cmd command, user database.User) error {
 	return nil
 }
 
+func handlerUnfollow(s *state, cmd command, user database.User) error {
+	if len(cmd.arguments) < 1 {
+		return errors.New("url is required")
+	}
+	feed, err := s.db.GetByUrl(context.Background(), cmd.arguments[0])
+	if err != nil {
+		return err
+	}
+	err = s.db.DeleteFeedFollow(context.Background(), database.DeleteFeedFollowParams{UserID: user.ID, FeedID: feed.ID})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (c *commands) run(s *state, cmd command) error {
 	function, exists := c.functions[cmd.name]
 	if !exists {
