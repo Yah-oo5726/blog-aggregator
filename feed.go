@@ -3,10 +3,13 @@ package main
 import (
 	"context"
 	"encoding/xml"
-	"fmt"
 	"html"
 	"io"
 	"net/http"
+	"time"
+
+	"github.com/Yah-oo5726/blog-aggregator/internal/database"
+	"github.com/google/uuid"
 )
 
 type RSSFeed struct {
@@ -75,7 +78,14 @@ func scrapeFeed(s *state) error {
 		return err
 	}
 	for _, item := range feed.Channel.Item {
-		fmt.Printf("* %v\n%v\n%v\n\n", item.Title, item.Link, item.Description)
+		publishedAt, err := time.Parse("Mon, 2 Jan 2006 15:04:05 -0700", item.PubDate)
+		if err != nil {
+			return err
+		}
+		err = s.db.CreatePost(context.Background(), database.CreatePostParams{ID: uuid.New(), CreatedAt: time.Now(), UpdatedAt: time.Now(), Title: item.Title, Url: item.Link, Description: item.Description, PublishedAt: publishedAt, FeedID: nextFeed.ID})
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

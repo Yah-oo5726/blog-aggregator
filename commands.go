@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/Yah-oo5726/blog-aggregator/internal/config"
@@ -179,6 +180,25 @@ func handlerUnfollow(s *state, cmd command, user database.User) error {
 	err = s.db.DeleteFeedFollow(context.Background(), database.DeleteFeedFollowParams{UserID: user.ID, FeedID: feed.ID})
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func handlerBrowse(s *state, cmd command, user database.User) error {
+	limit := 2
+	var err error
+	if len(cmd.arguments) > 0 {
+		limit, err = strconv.Atoi(cmd.arguments[0])
+		if err != nil {
+			return err
+		}
+	}
+	posts, err := s.db.GetPostsByUser(context.Background(), database.GetPostsByUserParams{UserID: user.ID, Limit: int32(limit)})
+	if err != nil {
+		return err
+	}
+	for _, post := range posts {
+		fmt.Printf("* %s\n  - %s\n  - %s\n  - %s\n", post.Title, post.Description, post.Url, post.FeedName)
 	}
 	return nil
 }
